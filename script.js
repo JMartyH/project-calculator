@@ -25,4 +25,29 @@ function operate(operandOne, operandTwo, operation) {
         return divide(operandOne, operandTwo);
     }
 }
+    
 
+let calculator = {
+
+    operandOne: 0,
+    operandTwo: 0,
+    operation: '',
+    set setOperandOne(operandOne){
+        this.operandOne = operandOne;
+    },
+    set setOperandTwo(operandTwo){
+        this.operandTwo = operandTwo;
+    },
+    set setOperation(operation){
+        this.operation = operation;
+    },
+    get getOperandOne(){
+        return this.operandOne;
+    },
+    get getOperandTwo(){
+        return this.operandTwo;
+    },
+    get getOperation(){
+        return this.operation;
+    }
+}
