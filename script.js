@@ -88,7 +88,7 @@ function pressedNumber(e) {
     return e.key;
 }
 
-function pressedOperator(e){
+function pressedOperator(e) {
     const operator = document.querySelector(`button[data-operator="${e.key}"]`);
     if (!operator) {
         return;
@@ -96,7 +96,7 @@ function pressedOperator(e){
     return e.key;
 }
 
-function pressedEvaluate(e){
+function pressedEvaluate(e) {
     const evaluate = document.querySelector(`button[data-evaluate="${e.key}"]`);
     if (!evaluate) {
         return;
@@ -105,7 +105,7 @@ function pressedEvaluate(e){
 
 }
 
-function pressedDecimal(e){
+function pressedDecimal(e) {
     const decimal = document.querySelector(`button[data-decimal="${e.key}"]`);
     if (!decimal) {
         return;
@@ -113,7 +113,51 @@ function pressedDecimal(e){
     return e.key;
 }
 
+function clickedNumber(e) {
+    const number = document.querySelector(`button[data-number="${e.target.dataset.number}"]`);
+    if(!number){
+        return;
+    }
+    console.log(e.target.dataset.number);
+    return;
+}
+
+function clickedOperator(e) {
+    const operator = document.querySelector(`button[data-operator="${e.target.dataset.operator}"]`);
+    if(!operator){
+        return;
+    }
+    console.log(e.target.dataset.operator);
+    return;
+}
+
+function clickedEvaluate(e) {
+    const evaluate = document.querySelector(`button[data-evaluate="${e.target.dataset.evaluate}"]`);
+    if(!evaluate){
+        return;
+    }
+    console.log(e.target.dataset.evaluate);
+    return;
+}
+
+function clickedDecimal(e) {
+    const decimal = document.querySelector(`button[data-decimal="${e.target.dataset.decimal}"]`);
+    if(!decimal){
+        return;
+    }
+    console.log(e.target.dataset.decimal);
+    return;
+}
+
+
 window.addEventListener('keydown', pressedNumber);
 window.addEventListener('keydown', pressedOperator);
 window.addEventListener('keydown', pressedEvaluate);
 window.addEventListener('keydown', pressedDecimal);
+
+const buttons = document.querySelectorAll('button');
+
+buttons.forEach(button => button.addEventListener('mousedown', clickedNumber));
+buttons.forEach(button => button.addEventListener('mousedown', clickedOperator));
+buttons.forEach(button => button.addEventListener('mousedown', clickedEvaluate));
+buttons.forEach(button => button.addEventListener('mousedown', clickedDecimal));
