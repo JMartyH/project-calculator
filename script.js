@@ -92,6 +92,16 @@ function getPreviousAnswer(currentAnswer) {
     return currentAnswer;
 }
 
+//TODO: change return and get the inputs like pressedNumber();
+// pressedDecimal - ok
+// pressedEvaluate - X
+// pressedNumber - ok
+// pressedOperator - X
+// clickedDecimal - ok
+// clickedEvaluate - X
+// clickedNumber - ok
+// clickedOperator - X
+
 function pressedNumber(e) {
 
     const number = document.querySelector(`button[data-number="${e.key}"]`);
@@ -124,7 +134,12 @@ function pressedDecimal(e) {
     if (!decimal) {
         return;
     }
-    return e.key;
+
+    if(holdInputs.includes('.')){
+        return
+    }
+    holdInputs.push(e.key);
+    return;
 }
 
 function clickedNumber(e) {
@@ -132,8 +147,9 @@ function clickedNumber(e) {
     if(!number){
         return;
     }
-    console.log(e.target.dataset.number);
+    holdInputs.push(e.target.dataset.number);
     return;
+
 }
 
 function clickedOperator(e) {
@@ -159,7 +175,10 @@ function clickedDecimal(e) {
     if(!decimal){
         return;
     }
-    console.log(e.target.dataset.decimal);
+    if(holdInputs.includes('.')){
+        return
+    }
+    holdInputs.push(e.target.dataset.decimal);
     return;
 }
 
