@@ -42,6 +42,19 @@ const decimalBtn = document.querySelector('#decimal-point');
 const zeroBtn = document.querySelector('#zero');
 const addBtn = document.querySelector('#add');
 const equalBtn = document.querySelector('#equal');
+const buttons = document.querySelectorAll('button'); 
+
+const holdInputs = [];
+let operation = '';
+
+function joinArray (holdInputs){
+    return holdInputs.join('');
+}
+
+function deleteLastInput(holdInputs){
+    holdInputs.pop();
+    return holdInputs;
+}
 
 
 function add(previous, current) {
@@ -85,7 +98,8 @@ function pressedNumber(e) {
     if (!number) {
         return;
     }
-    return e.key;
+    holdInputs.push(e.key);
+    return;
 }
 
 function pressedOperator(e) {
@@ -155,9 +169,12 @@ window.addEventListener('keydown', pressedOperator);
 window.addEventListener('keydown', pressedEvaluate);
 window.addEventListener('keydown', pressedDecimal);
 
-const buttons = document.querySelectorAll('button');
+
 
 buttons.forEach(button => button.addEventListener('mousedown', clickedNumber));
 buttons.forEach(button => button.addEventListener('mousedown', clickedOperator));
 buttons.forEach(button => button.addEventListener('mousedown', clickedEvaluate));
 buttons.forEach(button => button.addEventListener('mousedown', clickedDecimal));
+
+
+
