@@ -137,8 +137,10 @@ function pressedEvaluate(e) {
         return;
     }
     calculatorObj.setOperandTwo = joinArray(holdInputs);
-    console.log(calculatorObj.getOperandOne + calculatorObj.getOperandTwo + calculatorObj.getOperation)
     console.log(operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation));
+    currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+    savePreviousAnswer(currentAnswer);
+    displayOnScreen(`${e.key}${currentAnswer}` );
     clearArray(holdInputs);
     return;
 
@@ -163,6 +165,7 @@ function clickedNumber(e) {
         return;
     }
     holdInputs.push(e.target.dataset.number);
+    displayOnScreen(e.target.dataset.number);
     return;
 
 }
@@ -174,6 +177,7 @@ function clickedOperator(e) {
     }
     calculatorObj.setOperandOne = joinArray(holdInputs);
     calculatorObj.setOperation = e.target.dataset.operator;
+    displayOnScreen(e.target.dataset.operator);
     clearArray(holdInputs);
     return;
 }
@@ -183,7 +187,12 @@ function clickedEvaluate(e) {
     if(!evaluate){
         return;
     }
-    console.log(e.target.dataset.evaluate);
+
+
+    calculatorObj.setOperandTwo = joinArray(holdInputs);
+    currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+    savePreviousAnswer(currentAnswer);
+    displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}` );
     clearArray(holdInputs);
     return;
 }
@@ -219,3 +228,33 @@ function displayOnScreen(content){
     const screenContent = document.createTextNode(content);
     screenDiv.appendChild(screenContent);
 }
+
+function clearScreen(){
+    screenDiv.textContent = '';
+}
+
+function backSpaceOnScreen(e){
+    let newText = '';
+    let text = screenDiv.textContent;
+    deleteLastInput(holdInputs);
+    newText = text.slice(0,-1);
+    screenDiv.textContent = newText;
+    return;
+}
+
+function pressedBackSpaceOnScreen(e){
+    let newText = '';
+    let text = screenDiv.textContent;
+
+    if(e.key !== 'Backspace'){
+        return;
+    }
+    
+    deleteLastInput(holdInputs);
+    newText = text.slice(0,-1);
+    screenDiv.textContent = newText;
+    return;
+}
+
+backSpaceBtn.addEventListener('mousedown', backSpaceOnScreen)
+window.addEventListener('keydown', pressedBackSpaceOnScreen)
