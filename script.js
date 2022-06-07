@@ -45,10 +45,15 @@ const equalBtn = document.querySelector('#equal');
 const buttons = document.querySelectorAll('button'); 
 
 const holdInputs = [];
-let operation = '';
+let screenContent = '';
 
 function joinArray (holdInputs){
-    return holdInputs.join('');
+    return parseInt(holdInputs.join(''));
+}
+
+function clearArray (holdInputs){
+    holdInputs.length = 0;
+    return;
 }
 
 function deleteLastInput(holdInputs){
@@ -88,8 +93,8 @@ function operate(operandOne, operandTwo, operation) {
 let currentAnswer = 0;
 let previousAnswer = 0;
 
-function getPreviousAnswer(currentAnswer) {
-    return currentAnswer;
+function savePreviousAnswer(currentAnswer) {
+    previousAnswer = currentAnswer;
 }
 
 //TODO: change return and get the inputs like pressedNumber();
@@ -108,7 +113,9 @@ function pressedNumber(e) {
     if (!number) {
         return;
     }
+    
     holdInputs.push(e.key);
+    displayOnScreen(e.key);
     return;
 }
 
@@ -117,7 +124,11 @@ function pressedOperator(e) {
     if (!operator) {
         return;
     }
-    return e.key;
+    calculatorObj.setOperandOne = joinArray(holdInputs);
+    calculatorObj.setOperation = e.key;
+    displayOnScreen(e.key);
+    clearArray(holdInputs);
+    return;
 }
 
 function pressedEvaluate(e) {
@@ -125,7 +136,11 @@ function pressedEvaluate(e) {
     if (!evaluate) {
         return;
     }
-    return e.key;
+    calculatorObj.setOperandTwo = joinArray(holdInputs);
+    console.log(calculatorObj.getOperandOne + calculatorObj.getOperandTwo + calculatorObj.getOperation)
+    console.log(operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation));
+    clearArray(holdInputs);
+    return;
 
 }
 
@@ -157,7 +172,9 @@ function clickedOperator(e) {
     if(!operator){
         return;
     }
-    console.log(e.target.dataset.operator);
+    calculatorObj.setOperandOne = joinArray(holdInputs);
+    calculatorObj.setOperation = e.target.dataset.operator;
+    clearArray(holdInputs);
     return;
 }
 
@@ -167,6 +184,7 @@ function clickedEvaluate(e) {
         return;
     }
     console.log(e.target.dataset.evaluate);
+    clearArray(holdInputs);
     return;
 }
 
@@ -197,3 +215,7 @@ buttons.forEach(button => button.addEventListener('mousedown', clickedDecimal));
 
 
 
+function displayOnScreen(content){
+    const screenContent = document.createTextNode(content);
+    screenDiv.appendChild(screenContent);
+}
