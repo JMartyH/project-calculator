@@ -42,21 +42,22 @@ const decimalBtn = document.querySelector('#decimal-point');
 const zeroBtn = document.querySelector('#zero');
 const addBtn = document.querySelector('#add');
 const equalBtn = document.querySelector('#equal');
-const buttons = document.querySelectorAll('button'); 
+const buttons = document.querySelectorAll('button');
 
 const holdInputs = [];
 let screenContent = '';
+let calcState = 0;
 
-function joinArray (holdInputs){
+function joinArray(holdInputs) {
     return parseInt(holdInputs.join(''));
 }
 
-function clearArray (holdInputs){
+function clearArray(holdInputs) {
     holdInputs.length = 0;
     return;
 }
 
-function deleteLastInput(holdInputs){
+function deleteLastInput(holdInputs) {
     holdInputs.pop();
     return holdInputs;
 }
@@ -113,7 +114,7 @@ function pressedNumber(e) {
     if (!number) {
         return;
     }
-    
+
     holdInputs.push(e.key);
     displayOnScreen(e.key);
     return;
@@ -122,6 +123,14 @@ function pressedNumber(e) {
 function pressedOperator(e) {
     const operator = document.querySelector(`button[data-operator="${e.key}"]`);
     if (!operator) {
+        return;
+    }
+    if (calcState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        calculatorObj.setOperation = e.key;
+        displayOnScreen(e.key);
+        clearArray(holdInputs);
+        calcState = 0;
         return;
     }
     calculatorObj.setOperandOne = joinArray(holdInputs);
@@ -134,14 +143,44 @@ function pressedOperator(e) {
 function pressedEvaluate(e) {
     const evaluate = document.querySelector(`button[data-evaluate="${e.key}"]`);
     if (!evaluate) {
+        if (e.key === 'Enter') {
+            if (calcState > 0) {
+                calculatorObj.setOperandOne = previousAnswer;
+                currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+                savePreviousAnswer(currentAnswer);
+                displayOnScreen(`=${currentAnswer}`);
+                clearArray(holdInputs);
+                return;
+            }
+            console.log(calculatorObj.getOperandTwo)
+            calculatorObj.setOperandTwo = joinArray(holdInputs);
+            console.log(operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation));
+            currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+            savePreviousAnswer(currentAnswer);
+            displayOnScreen(`=${currentAnswer}`);
+            clearArray(holdInputs);
+            calcState++;
+            return;
+
+        }
+        return;
+    }
+    if (calcState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+        savePreviousAnswer(currentAnswer);
+        clearScreen();
+        displayOnScreen(`${e.key}${currentAnswer}`);
+        clearArray(holdInputs);
         return;
     }
     calculatorObj.setOperandTwo = joinArray(holdInputs);
     console.log(operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation));
     currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
     savePreviousAnswer(currentAnswer);
-    displayOnScreen(`${e.key}${currentAnswer}` );
+    displayOnScreen(`${e.key}${currentAnswer}`);
     clearArray(holdInputs);
+    calcState++;
     return;
 
 }
@@ -152,7 +191,7 @@ function pressedDecimal(e) {
         return;
     }
 
-    if(holdInputs.includes('.')){
+    if (holdInputs.includes('.')) {
         return
     }
     holdInputs.push(e.key);
@@ -161,7 +200,7 @@ function pressedDecimal(e) {
 
 function clickedNumber(e) {
     const number = document.querySelector(`button[data-number="${e.target.dataset.number}"]`);
-    if(!number){
+    if (!number) {
         return;
     }
     holdInputs.push(e.target.dataset.number);
@@ -172,7 +211,15 @@ function clickedNumber(e) {
 
 function clickedOperator(e) {
     const operator = document.querySelector(`button[data-operator="${e.target.dataset.operator}"]`);
-    if(!operator){
+    if (!operator) {
+        return;
+    }
+    if (calcState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        calculatorObj.setOperation = e.target.dataset.operator;
+        displayOnScreen(e.target.dataset.operator);
+        clearArray(holdInputs);
+        calcState = 0;
         return;
     }
     calculatorObj.setOperandOne = joinArray(holdInputs);
@@ -184,25 +231,34 @@ function clickedOperator(e) {
 
 function clickedEvaluate(e) {
     const evaluate = document.querySelector(`button[data-evaluate="${e.target.dataset.evaluate}"]`);
-    if(!evaluate){
+    if (!evaluate) {
         return;
     }
-
+    if (calcState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+        savePreviousAnswer(currentAnswer);
+        clearScreen();
+        displayOnScreen(`=${currentAnswer}`);
+        clearArray(holdInputs);
+        return;
+    }
 
     calculatorObj.setOperandTwo = joinArray(holdInputs);
     currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
     savePreviousAnswer(currentAnswer);
-    displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}` );
+    displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}`);
     clearArray(holdInputs);
+    calcState++;
     return;
 }
 
 function clickedDecimal(e) {
     const decimal = document.querySelector(`button[data-decimal="${e.target.dataset.decimal}"]`);
-    if(!decimal){
+    if (!decimal) {
         return;
     }
-    if(holdInputs.includes('.')){
+    if (holdInputs.includes('.')) {
         return
     }
     holdInputs.push(e.target.dataset.decimal);
@@ -224,37 +280,48 @@ buttons.forEach(button => button.addEventListener('mousedown', clickedDecimal));
 
 
 
-function displayOnScreen(content){
+function displayOnScreen(content) {
     const screenContent = document.createTextNode(content);
     screenDiv.appendChild(screenContent);
 }
 
-function clearScreen(){
+function clearScreen() {
     screenDiv.textContent = '';
 }
 
-function backSpaceOnScreen(e){
+function backSpaceOnScreen(e) {
     let newText = '';
     let text = screenDiv.textContent;
     deleteLastInput(holdInputs);
-    newText = text.slice(0,-1);
+    newText = text.slice(0, -1);
     screenDiv.textContent = newText;
     return;
 }
 
-function pressedBackSpaceOnScreen(e){
+function pressedBackSpaceOnScreen(e) {
     let newText = '';
     let text = screenDiv.textContent;
 
-    if(e.key !== 'Backspace'){
+    if (e.key !== 'Backspace') {
         return;
     }
-    
+
     deleteLastInput(holdInputs);
-    newText = text.slice(0,-1);
+    newText = text.slice(0, -1);
     screenDiv.textContent = newText;
     return;
 }
+
 
 backSpaceBtn.addEventListener('mousedown', backSpaceOnScreen)
 window.addEventListener('keydown', pressedBackSpaceOnScreen)
+
+clearBtn.addEventListener('mousedown', () => {
+    location.reload();
+});
+
+window.addEventListener('keydown', (e)=>{
+    if(e.key === "c" || e.key === "C"){
+        location.reload();
+    }
+})
