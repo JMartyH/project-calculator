@@ -121,6 +121,10 @@ function pressedOperator(e) {
         return;
     }
 
+    if (holdInputs.length == 0 && opState > 0 && calcState == 0) {
+        return;
+    }
+
     if (opState == 0 && calcState > 0 && holdInputs.length == 0) {
         clearScreen();
         calculatorObj.setOperandOne = previousAnswer;
@@ -174,6 +178,10 @@ function pressedEvaluate(e) {
     if (!evaluate) {
         if (e.key === 'Enter') {
 
+            if (calculatorObj.getOperandOne == null || calculatorObj.getOperation == null) {
+                return;
+            }
+
             if (calcState > 0 && opState == 0) {
                 calculatorObj.setOperandOne = previousAnswer;
                 currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
@@ -208,6 +216,9 @@ function pressedEvaluate(e) {
         return;
     }
 
+    if (calculatorObj.getOperandOne == null || calculatorObj.getOperation == null) {
+        return;
+    }
 
     if (calcState > 0 && opState == 0) {
         calculatorObj.setOperandOne = previousAnswer;
@@ -271,6 +282,9 @@ function clickedOperator(e) {
     if (!operator) {
         return;
     }
+    if (holdInputs.length == 0 && opState > 0 && calcState == 0) {
+        return;
+    }
 
     if (opState == 0 && calcState > 0 && holdInputs.length == 0) {
         clearScreen();
@@ -323,6 +337,9 @@ function clickedOperator(e) {
 function clickedEvaluate(e) {
     const evaluate = document.querySelector(`button[data-evaluate="${e.target.dataset.evaluate}"]`);
     if (!evaluate) {
+        return;
+    }
+    if (calculatorObj.getOperandOne == null || calculatorObj.getOperation == null) {
         return;
     }
     // repeat pressing equals
