@@ -399,12 +399,12 @@ function clearScreen() {
 function backSpaceOnScreen(e) {
     let newText = '';
     let text = screenDiv.textContent;
-    if (holdInputs.length == 0) {
+    if (holdInputs.length != 0) {
         deleteLastInput(holdInputs);
         newText = text.slice(0, -1);
         screenDiv.textContent = newText;
+        return;
     }
-    return;
 }
 
 function pressedBackSpaceOnScreen(e) {
@@ -414,7 +414,7 @@ function pressedBackSpaceOnScreen(e) {
     if (e.key !== 'Backspace') {
         return;
     }
-    if (holdInputs.length == 0) {
+    if (holdInputs.length != 0) {
         deleteLastInput(holdInputs);
         newText = text.slice(0, -1);
         screenDiv.textContent = newText;
