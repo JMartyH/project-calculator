@@ -121,9 +121,16 @@ function pressedOperator(e) {
         return;
     }
 
-    if (holdInputs.length == 0 && opState > 0 && calcState == 0) {
+    if (holdInputs.length == 0 && opState == 0 && calcState == 0) {
         return;
     }
+    if (opState > 0 && calcState == 0 && holdInputs.length == 0){
+        return;
+    }
+    if (opState > 0 && calcState > 0 && holdInputs.length == 0){
+        return;
+    }
+
 
     if (opState == 0 && calcState > 0 && holdInputs.length == 0) {
         clearScreen();
@@ -282,7 +289,13 @@ function clickedOperator(e) {
     if (!operator) {
         return;
     }
-    if (holdInputs.length == 0 && opState > 0 && calcState == 0) {
+    if (holdInputs.length == 0 && opState == 0 && calcState == 0) {
+        return;
+    }
+    if (opState > 0 && calcState == 0 && holdInputs.length == 0){
+        return;
+    }
+    if (opState > 0 && calcState > 0 && holdInputs.length == 0){
         return;
     }
 
