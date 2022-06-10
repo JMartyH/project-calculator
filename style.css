@@ -5,13 +5,13 @@ body {
 
 .container {
     display: flex;
-    padding-top: 200px;
+    padding-top: 180px;
     justify-content: center;
 }
 
 .calculator-container {
     display: flex;
-    padding: 75px 30px;
+    padding: 40px 30px;
     border-style: solid;
     border-color: #957DAD;
 }
@@ -19,7 +19,6 @@ body {
 .calculator-body {
     display: flex;
     flex-direction: column;
-    /* max-width: 480px; */
     flex-shrink: 0;
 }
 
@@ -69,7 +68,10 @@ body {
     text-align: right;
     padding: 10px 0 10px 0;
 }
-
+.top{
+    font-family: 'Kaushan Script', cursive;
+    font-size: 36px;
+}
 .upper-body{
     background-color: white;
     width: 437;
