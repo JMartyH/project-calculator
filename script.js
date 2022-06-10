@@ -1,8 +1,8 @@
 let calculatorObj = {
 
-    operandOne: 0,
-    operandTwo: 0,
-    operation: '',
+    operandOne: null,
+    operandTwo: null,
+    operation: null,
     set setOperandOne(operandOne) {
         this.operandOne = operandOne;
     },
@@ -50,6 +50,9 @@ let calcState = 0;
 let opState = 0;
 
 function joinArray(holdInputs) {
+    if (holdInputs.join('') == '.') {
+        return 0;
+    }
     return parseInt(holdInputs.join(''));
 }
 
@@ -95,19 +98,10 @@ function operate(operandOne, operandTwo, operation) {
 let currentAnswer = 0;
 let previousAnswer = 0;
 
+
 function savePreviousAnswer(currentAnswer) {
     previousAnswer = currentAnswer;
 }
-
-//TODO: change return and get the inputs like pressedNumber();
-// pressedDecimal - ok
-// pressedEvaluate - X
-// pressedNumber - ok
-// pressedOperator - X
-// clickedDecimal - ok
-// clickedEvaluate - X
-// clickedNumber - ok
-// clickedOperator - X
 
 function pressedNumber(e) {
 
@@ -126,80 +120,96 @@ function pressedOperator(e) {
     if (!operator) {
         return;
     }
-    if (calcState > 0) {
+
+    if (opState == 0 && calcState > 0 && holdInputs.length == 0) {
+        clearScreen();
+        calculatorObj.setOperandOne = previousAnswer;
+        calculatorObj.setOperation = e.key;
+        displayOnScreen(calculatorObj.getOperandOne + '' + e.key);
+        clearArray(holdInputs);
+        opState++;
+        return;
+    } else if (opState == 0 && calcState > 0) {
+        clearScreen();
+        calculatorObj.setOperandOne = joinArray(holdInputs);
+        calculatorObj.setOperation = e.key;
+        displayOnScreen(calculatorObj.getOperandOne + '' + e.key);
+        clearArray(holdInputs);
+        opState++;
+        return;
+    } else if (opState > 0) {
+        calculatorObj.setOperandTwo = joinArray(holdInputs); // set operandTwo
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation); //evaluate 
+        savePreviousAnswer(currentAnswer); // save currentAnswer to previousAnswer
+
+
         calculatorObj.setOperandOne = previousAnswer;
         calculatorObj.setOperation = e.key;
         clearScreen();
-        displayOnScreen(`${previousAnswer}${e.key}`);
+        displayOnScreen(`=${currentAnswer}${e.key}`);
         clearArray(holdInputs);
         calcState = 0;
-        
+        return;
+    } else if (calcState > 0 && opState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        clearScreen();
+        displayOnScreen(`=${previousAnswer}${e.key}`);
+        clearArray(holdInputs);
+        calcState = 0;
         return;
     }
-    if (opState > 0 && calcState === 0) {
-        if (!calculatorObj.getOperandOne) {
-            calculatorObj.setOperandOne = currentAnswer;
-        }
-        calculatorObj.setOperandTwo = joinArray(holdInputs);
-        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-        savePreviousAnswer(currentAnswer);
-        displayOnScreen(`=${currentAnswer}`);
-        clearArray(holdInputs);
-    }
+
+    clearScreen();
     calculatorObj.setOperandOne = joinArray(holdInputs);
     calculatorObj.setOperation = e.key;
-    displayOnScreen(e.key);
+    displayOnScreen(calculatorObj.getOperandOne + '' + e.key);
     clearArray(holdInputs);
     opState++;
     return;
+
 }
 
 function pressedEvaluate(e) {
     const evaluate = document.querySelector(`button[data-evaluate="${e.key}"]`);
     if (!evaluate) {
         if (e.key === 'Enter') {
-            if (opState == 0 && calcState == 0) {
+
+            if (calcState > 0 && opState == 0) {
                 calculatorObj.setOperandOne = previousAnswer;
+                currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+                savePreviousAnswer(currentAnswer);
+                clearScreen();
+                displayOnScreen(`${e.key}${currentAnswer}`);
+                clearArray(holdInputs);
+                return;
+            }
+            if (calcState > 0 && opState > 0) {
                 calculatorObj.setOperandTwo = joinArray(holdInputs);
                 currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
                 savePreviousAnswer(currentAnswer);
-                displayOnScreen(`=${currentAnswer}`);
+                clearScreen();
+                displayOnScreen(`${e.key}${currentAnswer}`);
                 clearArray(holdInputs);
                 calcState++;
+                opState = 0;
                 return;
             }
-            if (calcState > 0) {
-                calculatorObj.setOperandOne = previousAnswer;
-                currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-                savePreviousAnswer(currentAnswer);
-                displayOnScreen(`=${currentAnswer}`);
-                clearArray(holdInputs);
-                return;
-            }
-            console.log(calculatorObj.getOperandTwo)
             calculatorObj.setOperandTwo = joinArray(holdInputs);
-            console.log(operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation));
             currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
             savePreviousAnswer(currentAnswer);
-            displayOnScreen(`=${currentAnswer}`);
+            clearScreen();
+            displayOnScreen(`${e.key}${currentAnswer}`);
             clearArray(holdInputs);
             calcState++;
+            opState = 0;
             return;
 
         }
         return;
     }
-    if (opState > 0 && calcState == 0) {
-        calculatorObj.setOperandOne = previousAnswer;
-        calculatorObj.setOperandTwo = joinArray(holdInputs);
-        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-        savePreviousAnswer(currentAnswer);
-        displayOnScreen(`${e.key}${currentAnswer}`);
-        clearArray(holdInputs);
-        calcState++;
-        return;
-    }
-    if (calcState > 0) {
+
+
+    if (calcState > 0 && opState == 0) {
         calculatorObj.setOperandOne = previousAnswer;
         currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
         savePreviousAnswer(currentAnswer);
@@ -208,13 +218,27 @@ function pressedEvaluate(e) {
         clearArray(holdInputs);
         return;
     }
+    if (calcState > 0 && opState > 0) {
+        calculatorObj.setOperandTwo = joinArray(holdInputs);
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+        savePreviousAnswer(currentAnswer);
+        clearScreen();
+        displayOnScreen(`${e.key}${currentAnswer}`);
+        clearArray(holdInputs);
+        calcState++;
+        opState = 0;
+        return;
+    }
     calculatorObj.setOperandTwo = joinArray(holdInputs);
     currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
     savePreviousAnswer(currentAnswer);
+    clearScreen();
     displayOnScreen(`${e.key}${currentAnswer}`);
     clearArray(holdInputs);
     calcState++;
+    opState = 0;
     return;
+
 
 }
 
@@ -247,28 +271,49 @@ function clickedOperator(e) {
     if (!operator) {
         return;
     }
-    if (calcState > 0) {
+
+    if (opState == 0 && calcState > 0 && holdInputs.length == 0) {
+        clearScreen();
+        calculatorObj.setOperandOne = previousAnswer;
+        calculatorObj.setOperation = e.target.dataset.operator;
+        displayOnScreen(calculatorObj.getOperandOne + '' + e.target.dataset.operator);
+        clearArray(holdInputs);
+        opState++;
+        return;
+    } else if (opState == 0 && calcState > 0) {
+        clearScreen();
+        calculatorObj.setOperandOne = joinArray(holdInputs);
+        calculatorObj.setOperation = e.target.dataset.operator;
+        displayOnScreen(calculatorObj.getOperandOne + '' + e.target.dataset.operator);
+        clearArray(holdInputs);
+        opState++;
+        return;
+    } else if (opState > 0) {
+        calculatorObj.setOperandTwo = joinArray(holdInputs); // set operandTwo
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation); //evaluate 
+        savePreviousAnswer(currentAnswer); // save currentAnswer to previousAnswer
+
+
         calculatorObj.setOperandOne = previousAnswer;
         calculatorObj.setOperation = e.target.dataset.operator;
         clearScreen();
-        displayOnScreen(`${previousAnswer}${e.target.dataset.operator}`);
+        displayOnScreen(`=${currentAnswer}${e.target.dataset.operator}`);
         clearArray(holdInputs);
         calcState = 0;
-        return;   
-    }
-    if (opState > 0 && calcState === 0) {
-        if (!calculatorObj.getOperandOne) {
-            calculatorObj.setOperandOne = currentAnswer;
-        }
-        calculatorObj.setOperandTwo = joinArray(holdInputs);
-        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-        savePreviousAnswer(currentAnswer);
-        displayOnScreen(`=${currentAnswer}`);
+        return;
+    } else if (calcState > 0 && opState > 0) {
+        calculatorObj.setOperandOne = previousAnswer;
+        clearScreen();
+        displayOnScreen(`=${previousAnswer}${e.target.dataset.operator}`);
         clearArray(holdInputs);
+        calcState = 0;
+        return;
     }
+
+    clearScreen();
     calculatorObj.setOperandOne = joinArray(holdInputs);
     calculatorObj.setOperation = e.target.dataset.operator;
-    displayOnScreen(e.target.dataset.operator);
+    displayOnScreen(calculatorObj.getOperandOne + '' + e.target.dataset.operator);
     clearArray(holdInputs);
     opState++;
     return;
@@ -280,42 +325,38 @@ function clickedEvaluate(e) {
     if (!evaluate) {
         return;
     }
-    // if (opState > 0 && calcState === 0) {
-    //     if (!calculatorObj.getOperandOne) {
-    //         calculatorObj.setOperandOne = currentAnswer;
-    //     }
-    //     calculatorObj.setOperandTwo = joinArray(holdInputs);
-    //     currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-    //     savePreviousAnswer(currentAnswer);
-    //     displayOnScreen(`=${currentAnswer}`);
-    //     clearArray(holdInputs);
-    // }
-    if (opState > 0 && calcState == 0) {
-        calculatorObj.setOperandOne = previousAnswer;
-        calculatorObj.setOperandTwo = joinArray(holdInputs);
-        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
-        savePreviousAnswer(currentAnswer);
-        displayOnScreen(`=${currentAnswer}`);
-        clearArray(holdInputs);
-        calcState++;
-        return;
-    }
-    if (calcState > 0) {
+    // repeat pressing equals
+    if (calcState > 0 && opState == 0) {
         calculatorObj.setOperandOne = previousAnswer;
         currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
         savePreviousAnswer(currentAnswer);
         clearScreen();
-        displayOnScreen(`=${currentAnswer}`);
+        displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}`);
         clearArray(holdInputs);
+        opState = 0;
+        return;
+    }
+    // immediate operation after equals
+    if (calcState > 0 && opState > 0) {
+        calculatorObj.setOperandTwo = joinArray(holdInputs);
+        currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
+        savePreviousAnswer(currentAnswer);
+        clearScreen();
+        displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}`);
+        clearArray(holdInputs);
+        calcState++;
+        opState = 0;
         return;
     }
 
     calculatorObj.setOperandTwo = joinArray(holdInputs);
     currentAnswer = operate(calculatorObj.getOperandOne, calculatorObj.getOperandTwo, calculatorObj.getOperation);
     savePreviousAnswer(currentAnswer);
+    clearScreen();
     displayOnScreen(`${e.target.dataset.evaluate}${currentAnswer}`);
     clearArray(holdInputs);
     calcState++;
+    opState = 0;
     return;
 }
 
@@ -358,9 +399,11 @@ function clearScreen() {
 function backSpaceOnScreen(e) {
     let newText = '';
     let text = screenDiv.textContent;
-    deleteLastInput(holdInputs);
-    newText = text.slice(0, -1);
-    screenDiv.textContent = newText;
+    if (holdInputs.length == 0) {
+        deleteLastInput(holdInputs);
+        newText = text.slice(0, -1);
+        screenDiv.textContent = newText;
+    }
     return;
 }
 
@@ -371,15 +414,17 @@ function pressedBackSpaceOnScreen(e) {
     if (e.key !== 'Backspace') {
         return;
     }
+    if (holdInputs.length == 0) {
+        deleteLastInput(holdInputs);
+        newText = text.slice(0, -1);
+        screenDiv.textContent = newText;
+        return;
+    }
 
-    deleteLastInput(holdInputs);
-    newText = text.slice(0, -1);
-    screenDiv.textContent = newText;
-    return;
 }
 
 
-backSpaceBtn.addEventListener('mousedown', backSpaceOnScreen)
+backSpaceBtn.addEventListener('click', backSpaceOnScreen)
 window.addEventListener('keydown', pressedBackSpaceOnScreen)
 
 clearBtn.addEventListener('mousedown', () => {
